@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soporte Técnico — Nueva solicitud</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --border: #E4E2DC;
+  --border-mid: #CECCC5;
+  --text: #1A1916;
+  --text-muted: #6B6A65;
+  --text-hint: #9E9C96;
+  --accent: #185FA5;
+  --accent-bg: #E6F1FB;
+  --accent-text: #0C447C;
+  --success-bg: #EAF3DE;
+  --success-text: #27500A;
+  --success-border: #C0DD97;
+  --danger: #A32D2D;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+html { background: var(--bg); min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+header {
+  background: var(--surface);
+  border-bottom: 0.5px solid var(--border);
+  padding: 0 2rem;
+  height: 56px;
+  display: flex; align-items: center; gap: 10px;
+  position: sticky; top: 0; z-index: 10;
+}
+header .logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent-bg);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+header h1 { font-size: 15px; font-weight: 600; }
+header span { font-size: 13px; color: var(--text-muted); }
+
+main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 3rem 1rem; }
+
+.card {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  width: 100%; max-width: 560px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.card-header { margin-bottom: 2rem; }
+.card-header h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+.card-header p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+.field { margin-bottom: 1.1rem; }
+.field label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+.field label .req { color: var(--danger); margin-left: 2px; }
+.field input, .field select, .field textarea {
+  width: 100%; font-size: 14px; font-family: inherit;
+  padding: 9px 12px;
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+  outline: none; transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(24,95,165,0.1);
+}
+.field textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.priority-group { display: flex; gap: 8px; }
+.priority-opt { flex: 1; }
+.priority-opt input[type=radio] { display: none; }
+.priority-opt label {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px; border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-sm); font-size: 13px;
+  cursor: pointer; color: var(--text-muted); transition: all 0.12s;
+}
+.priority-opt input[type=radio]:checked + label { font-weight: 500; }
+.priority-opt.alta input:checked + label { background: #FCEBEB; border-color: #F09595; color: #791F1F; }
+.priority-opt.media input:checked + label { background: #FAEEDA; border-color: #FAC775; color: #633806; }
+.priority-opt.baja input:checked + label { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+.dot-alta { width: 8px; height: 8px; border-radius: 50%; background: #E24B4A; display: inline-block; }
+.dot-media { width: 8px; height: 8px; border-radius: 50%; background: #BA7517; display: inline-block; }
+.dot-baja { width: 8px; height: 8px; border-radius: 50%; background: #639922; display: inline-block; }
+
+.divider { height: 0.5px; background: var(--border); margin: 1.5rem 0; }
+
+.btn-submit {
+  width: 100%; padding: 11px;
+  font-size: 14px; font-weight: 600;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background 0.15s;
+}
+.btn-submit:hover { background: #0C447C; }
+.btn-submit:disabled { background: var(--border-mid); cursor: not-allowed; }
+
+.error-msg {
+  display: none;
+  background: #FCEBEB; color: #791F1F;
+  border: 0.5px solid #F09595;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px; font-size: 13px; margin-bottom: 1rem;
+}
+
+.success-screen { display: none; text-align: center; padding: 2rem; }
+.check-circle {
+  width: 64px; height: 64px;
+  background: var(--success-bg); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.25rem; font-size: 28px; color: #27500A;
+}
+.success-screen h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.success-screen p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
+.ticket-id-badge {
+  display: inline-block;
+  background: var(--accent-bg); color: var(--accent-text);
+  font-weight: 600; font-size: 15px;
+  padding: 8px 20px; border-radius: 999px;
+  margin-bottom: 1.5rem;
+  border: 0.5px solid rgba(24,95,165,0.2);
+}
+.btn-nuevo {
+  padding: 9px 20px; font-size: 14px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  cursor: pointer; color: var(--text);
+}
+.btn-nuevo:hover { background: var(--bg); }
+
+footer {
+  text-align: center; padding: 1.5rem;
+  font-size: 12px; color: var(--text-hint);
+  border-top: 0.5px solid var(--border);
+  background: var(--surface);
+}
+
+.spinner {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">🛠</div>
+  <h1>Mesa de ayuda IT</h1>
+  <span>/ Nueva solicitud</span>
+</header>
+
+<main>
+  <div class="card">
+
+    <div id="form-section">
+      <div class="card-header">
+        <h2>Solicitar soporte técnico</h2>
+        <p>Completa el formulario con los detalles de tu novedad. El equipo de IT recibirá tu solicitud de inmediato.</p>
+      </div>
+
+      <div class="error-msg" id="error-msg">Completa los campos obligatorios antes de enviar.</div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Nombre completo <span class="req">*</span></label>
+          <input type="text" id="f-nombre" placeholder="Ej. Laura Gómez">
+        </div>
+        <div class="field">
+          <label>Correo electrónico</label>
+          <input type="email" id="f-email" placeholder="correo@empresa.com">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Área / Cargo</label>
+          <input type="text" id="f-area" placeholder="Ej. Contabilidad">
+        </div>
+        <div class="field">
+          <label>Categoría <span class="req">*</span></label>
+          <select id="f-categoria">
+            <option value="">Seleccionar…</option>
+            <option>Hardware</option>
+            <option>Software</option>
+            <option>Red / Conectividad</option>
+            <option>Impresoras</option>
+            <option>Correo electrónico</option>
+            <option>Accesos y contraseñas</option>
+            <option>Equipos móviles</option>
+            <option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Asunto <span class="req">*</span></label>
+        <input type="text" id="f-asunto" placeholder="Resume brevemente el problema">
+      </div>
+      <div class="field">
+        <label>Descripción detallada</label>
+        <textarea id="f-desc" placeholder="¿Qué está pasando? ¿Desde cuándo? ¿En qué equipo o aplicación ocurre?"></textarea>
+      </div>
+      <div class="field">
+        <label>Prioridad</label>
+        <div class="priority-group">
+          <div class="priority-opt baja">
+            <input type="radio" name="prioridad" id="p-baja" value="Baja">
+            <label for="p-baja"><span class="dot-baja"></span> Baja</label>
+          </div>
+          <div class="priority-opt media">
+            <input type="radio" name="prioridad" id="p-media" value="Media" checked>
+            <label for="p-media"><span class="dot-media"></span> Media</label>
+          </div>
+          <div class="priority-opt alta">
+            <input type="radio" name="prioridad" id="p-alta" value="Alta">
+            <label for="p-alta"><span class="dot-alta"></span> Alta</label>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <button class="btn-submit" id="btn-enviar" onclick="enviarTicket()">✉ Enviar solicitud</button>
+    </div>
+
+    <div class="success-screen" id="success-section">
+      <div class="check-circle">✓</div>
+      <h3>Solicitud enviada</h3>
+      <p>Tu ticket fue registrado exitosamente. El equipo de IT lo revisará y se pondrá en contacto contigo.</p>
+      <div class="ticket-id-badge" id="ticket-id-display"></div>
+      <br>
+      <button class="btn-nuevo" onclick="nuevoTicket()">+ Crear otra solicitud</button>
+    </div>
+
+  </div>
+</main>
+
+<footer>Mesa de ayuda IT — uso interno</footer>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbz_Z62P1BNakN-mlgPJpK0OdQvgoW2JLVYVPU-bcT_k5FfiCdBDykILsLkq_CU9na6tTQ/exec';
+
+function genId() {
+  return 'TKT-' + Date.now().toString().slice(-6);
+}
+
+async function enviarTicket() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const cat    = document.getElementById('f-categoria').value;
+  const asunto = document.getElementById('f-asunto').value.trim();
+  const err    = document.getElementById('error-msg');
+
+  if (!nombre || !cat || !asunto) {
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Enviando…';
+
+  const prior = document.querySelector('input[name=prioridad]:checked').value;
+  const ticket = {
+    id: genId(),
+    nombre,
+    email:  document.getElementById('f-email').value.trim(),
+    area:   document.getElementById('f-area').value.trim(),
+    cat,
+    prior,
+    asunto,
+    desc:   document.getElementById('f-desc').value.trim(),
+    estado: 'Abierto',
+    horas: 0, minutos: 0, notas: '',
+    fechaCreacion: new Date().toISOString(),
+    fechaCierre: ''
+  };
+
+  try {
+    await fetch(API, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ticket)
+    });
+    document.getElementById('ticket-id-display').textContent = ticket.id;
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('success-section').style.display = 'block';
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = '✉ Enviar solicitud';
+    err.textContent = 'Error al enviar. Verifica tu conexión e intenta de nuevo.';
+    err.style.display = 'block';
+  }
+}
+
+function nuevoTicket() {
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('success-section').style.display = 'none';
+  document.getElementById('f-nombre').value = '';
+  document.getElementById('f-email').value = '';
+  document.getElementById('f-area').value = '';
+  document.getElementById('f-categoria').value = '';
+  document.getElementById('f-asunto').value = '';
+  document.getElementById('f-desc').value = '';
+  document.querySelector('input[value="Media"]').checked = true;
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = false;
+  btn.innerHTML = '✉ Enviar solicitud';
+}
+</script>
+</body>
+</html>
